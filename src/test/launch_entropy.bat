@@ -1,0 +1,1 @@
+@call launch_env_python36.bat "python -i entropy.py"

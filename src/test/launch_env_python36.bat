@@ -1,0 +1,1 @@
+start C:\ProgramData\Anaconda3\Scripts\activate.bat python3.6
