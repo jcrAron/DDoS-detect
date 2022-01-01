@@ -21,7 +21,7 @@ import graphviz
 
 def main():
     onlyTest()
-    #trainWithTest()
+    #trainAndTest()
 
 def onlyTest():
     print("Reading test data...")
@@ -36,7 +36,7 @@ def onlyTest():
     dtreePredict(dtree,testMeasures,testLabels)
     
 
-def trainWithTest():
+def trainAndTest():
     print("Reading data...")
     trainMeasures,trainLabels=readCsvDict(filePath.trainDataProcessingFileName,iterateFunction=splitDictArray)
     testMeasures,testLabels=readCsvDict(filePath.testDataProcessingFileName,iterateFunction=splitDictArray)

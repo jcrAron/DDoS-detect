@@ -54,6 +54,7 @@ def dataProcessing(data,timeInterval,info):
         info['time.last']=nowTime
     entropyInfos=info.setdefault('entropyInfos',{});
     dict['label']=labelToNum(data['label'])
+    
     entropyBykey = lambda key,tonum:normalize(defaultCalcEntropy(tonum(data[key]),entropyInfos.setdefault(key,{}),isNewInterval))
     dict['ip.src.entropy']=entropyBykey('ip.src',ipToNum)
     dict['ip.dst.entropy']=entropyBykey('ip.dst',ipToNum)
