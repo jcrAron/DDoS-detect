@@ -79,6 +79,7 @@ def gaussian(list):
 
 def calcEntropy_gaussian(newData,info,isNewInterval):
     '''
+    @deprecated too slow
     @param newData int
     @return float
     '''
@@ -113,7 +114,8 @@ def calcEntropy_section(newData,info,isNewInterval):
 
 def calcEntropy_slideWindow(newData,info,isNewInterval):
     '''
-    "Statistical Approaches to DDoS Attack Detection and Response"
+    "Statistical Approaches to DDoS Attack Detection and Response"?
+    @deprecated
     @param newData Object
     @return float
     '''
@@ -130,6 +132,7 @@ def calcEntropy_slideWindow(newData,info,isNewInterval):
 
 def calcEntropy_noSum(newData,info,isNewInterval):
     '''
+    @deprecated
     @param newData Object
     @return float
     '''
