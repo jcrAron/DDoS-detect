@@ -94,10 +94,10 @@ def calcEntropy_v1(newData,info,isNewInterval):
     @return float
     '''
     if isNewInterval:
-        #info['counter']={}
-        #info['totalCount']=0
-        #info['mean']={}
-        #info['stdev']={}
+        info['counter']={}
+        info['totalCount']=0
+        info['mean']={}
+        info['stdev']={}
         pass
     counter=info.setdefault("counter",{})
     valueTotal=info['totalCount']=info.setdefault("totalCount",0)+1

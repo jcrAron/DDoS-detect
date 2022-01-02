@@ -20,8 +20,8 @@ import graphviz
 
 
 def main():
-    #onlyTest()
-    trainAndTest()
+    onlyTest()
+    #trainAndTest()
 
 def onlyTest():
     print("Reading test data...")
