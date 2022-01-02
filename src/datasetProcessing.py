@@ -17,8 +17,6 @@ def processingTrainDatas():
     trainDicts=readCsvDict(filePath.originTrainFileName,iterateFunction=datasProcessing)
     print("Storing datas ...")
     writeCsvDict(filePath.trainDataProcessingFileName,trainDicts,*filePath.writeTitles)
-    print("showing datas ...")
-    showGraph(trainDicts,'frame.number','ip.port.src.dst.entropy')
     print("finish!")
     
 def processingTestDatas():
@@ -27,31 +25,7 @@ def processingTestDatas():
     testDicts=readCsvDict(filePath.originTestFileName,iterateFunction=datasProcessing)
     print("Storing datas ...")
     writeCsvDict(filePath.testDataProcessingFileName,testDicts,*filePath.writeTitles)
-    print("showing datas ...")
-    showGraph(testDicts,'frame.number','ip.port.src.dst.entropy')
     print("finish!")
-
-def showGraph(dictArray,xTitle,yTitle):
-    plt.cla()
-    colorDict={0:'k',1:'g',2:'b',3:'r'}
-    labelDict={0:'normal',1:'udp',2:'syn',3:'icmp'}
-    datas={}
-    plt.xlabel(xTitle)
-    plt.ylabel(yTitle)
-    for dataDict in dictArray:
-        '''
-        if dataDict['label']==3:
-            continue
-        '''
-        x,y=datas.setdefault(dataDict['label'],([],[]))
-        x.append(dataDict[xTitle])
-        y.append(dataDict[yTitle])
-    for label,value in datas.items():
-        x,y=value
-        plt.scatter(x,y,color=colorDict[label],marker='.',label=labelDict[label])#scatter alpha
-    plt.legend(loc='best')
-    plt.show()
-    
 
 def datasProcessing(rows):
     '''

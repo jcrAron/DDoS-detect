@@ -55,14 +55,15 @@ def dataProcessing(data,timeInterval,info):
     entropyInfos=info.setdefault('entropyInfos',{});
     dict['label']=labelToNum(data['label'])
     
-    entropyBykey = lambda key,tonum:normalize(defaultCalcEntropy(tonum(data[key]),entropyInfos.setdefault(key,{}),isNewInterval))
+    entropyBykey = lambda key,tonum:defaultCalcEntropy(tonum(data[key]),entropyInfos.setdefault(key,{}),isNewInterval)
     dict['ip.src.entropy']=entropyBykey('ip.src',ipToNum)
     dict['ip.dst.entropy']=entropyBykey('ip.dst',ipToNum)
     dict['srcport.entropy']=entropyBykey('srcport',portToNum)
     dict['dstport.entropy']=entropyBykey('dstport',portToNum)
     
-    entropy = lambda data,key:normalize(defaultCalcEntropy(data,entropyInfos.setdefault(key,{}),isNewInterval))
+    entropy = lambda data,key:defaultCalcEntropy(data,entropyInfos.setdefault(key,{}),isNewInterval)
     dict['ip.port.src.dst.entropy']=entropy((data['ip.src'],data['srcport'],data['ip.dst'],data['dstport']),'ip.port.src.dst.entropy')
+    #dict['ip.port.src.entropy']=entropy((data['ip.src'],data['srcport']),'ip.port.src.entropy')
     
     #calcEntropy((data['ip.src'],data['srcport']),probDict.setdefault('ipport.entropy',{}))
     #dict['ip.port.entropy']=calcEntropy_ZongLunLi(data,entropyInfos.setdefault('ip.port',{}))
@@ -103,15 +104,37 @@ def calcEntropy_section(newData,info,isNewInterval):
     @return float
     '''
     if isNewInterval:
-        info['counter']={}
+        #info['counter']={}
+        #info['totalCount']=0
+        #info['mean']={}
+        #info['stdev']={}
         pass
     counter=info.setdefault("counter",{})
-    counter[newData]=counter.setdefault(newData,0)+1  
-    vs=counter.values()
-    valueTotal=sum(vs)
-    ps=[v/valueTotal for v in vs]
-    return -sum([p*math.log(p,2) for p in ps])
+    valueTotal=info['totalCount']=info.setdefault("totalCount",0)+1
+    counter[newData]=counter.setdefault(newData,0)+1
+    entropy=-sum([(value/valueTotal)*math.log(value/valueTotal,2) for value in counter.values()])
+    mean,stdev=calcMean(entropy,info.setdefault("mean",{})),calcStdev(entropy,info.setdefault("stdev",{}))
+    if stdev==0:
+        return 0
+    return math.tanh(0.1*(entropy-mean)/stdev)
     
+def calcStdev(newData,info):
+    '''
+    ((sum(x**2)-(sum(x)**2)/total)/total)**(0.5)
+    @param newData number
+    '''
+    sumx=info['sumx']=info.setdefault('sumx',0)+(newData) #sum(x)
+    powx=info['powx']=info.setdefault('powx',0)+(newData**2) #sum(x**2)
+    total=info['total']=info.setdefault('total',0)+1
+    return ((powx-(sumx**2)/total)/total)**(0.5)
+
+def calcMean(newData,info):
+    '''
+    @param newData number
+    '''
+    sumx=info['sumx']=info.setdefault('sumx',0)+(newData) #sum(x)
+    total=info['total']=info.setdefault('total',0)+1
+    return sumx/total
 
 def calcEntropy_slideWindow(newData,info,isNewInterval):
     '''

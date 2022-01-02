@@ -20,8 +20,8 @@ import graphviz
 
 
 def main():
-    onlyTest()
-    #trainAndTest()
+    #onlyTest()
+    trainAndTest()
 
 def onlyTest():
     print("Reading test data...")
@@ -76,7 +76,7 @@ def svmTrain(measures,labels,saveFile):
     trainLableMat=np.array(labels).astype("int32")
     svm = cv2.ml_SVM.create()
     svm.setType(cv2.ml.SVM_C_SVC)
-    svm.setKernel(cv2.ml.SVM_POLY)
+    svm.setKernel(cv2.ml.SVM_LINEAR)
     svm.setTermCriteria((cv2.TermCriteria_COUNT+cv2.TermCriteria_EPS, 10000, 1e-16))
     svm.train(trainMeasureMat, cv2.ml.ROW_SAMPLE, trainLableMat)
     createFileDir(saveFile)
