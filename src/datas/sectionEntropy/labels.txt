@@ -1,1 +1,0 @@
-'ip.proto','ip.src.entropy','ip.dst.entropy','srcport.entropy','dstport.entropy','ip.port.src.dst.entropy'

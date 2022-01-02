@@ -55,6 +55,7 @@ def dataProcessing(data,timeInterval,info):
     entropyInfos=info.setdefault('entropyInfos',{});
     dict['label']=labelToNum(data['label'])
     
+    
     entropyBykey = lambda key,tonum:defaultCalcEntropy(tonum(data[key]),entropyInfos.setdefault(key,{}),isNewInterval)
     dict['ip.src.entropy']=entropyBykey('ip.src',ipToNum)
     dict['ip.dst.entropy']=entropyBykey('ip.dst',ipToNum)
@@ -63,11 +64,12 @@ def dataProcessing(data,timeInterval,info):
     
     entropy = lambda data,key:defaultCalcEntropy(data,entropyInfos.setdefault(key,{}),isNewInterval)
     dict['ip.port.src.dst.entropy']=entropy((data['ip.src'],data['srcport'],data['ip.dst'],data['dstport']),'ip.port.src.dst.entropy')
-    #dict['ip.port.src.entropy']=entropy((data['ip.src'],data['srcport']),'ip.port.src.entropy')
+    
     
     #calcEntropy((data['ip.src'],data['srcport']),probDict.setdefault('ipport.entropy',{}))
     #dict['ip.port.entropy']=calcEntropy_ZongLunLi(data,entropyInfos.setdefault('ip.port',{}))
     
+    #dict['ipport.entropy']=calcEntropy_v2(data,info.setdefault("ipport.entropy",{}))
     dict['ip.proto']=normalize(int(data['ip.proto']))
     return dict
 
@@ -79,27 +81,15 @@ def gaussian(list):
     mean,stdev=norm.fit(list)
     return norm(mean,stdev);
 
-def calcEntropy_gaussian(newData,info,isNewInterval):
+def calcEntropy_v2(newData,info):
     '''
-    @deprecated too slow
-    @param newData int
-    @return float
+    "A DDoS Attack Mitigation Scheme in ISP Networks Using Machine Learning Based on SDN"
+    @param newData whole packet
     '''
-    if isNewInterval:
-        info['norm']=gaussian(info['list'])
-        info['list']=[]
-    list=info.setdefault("list",[])
-    list.append(newData)
-    if not 'norm' in info.keys():
-        return 0
-    ps=[norm.pdf(v) for v in list]
-    return -sum([p*math.log(p,2) for p in ps])
-    
+    return calcEntropy_v1(newData['srcport'],info.setdefault(newData['ip.src'],{}))
 
-
-def calcEntropy_section(newData,info,isNewInterval):
+def calcEntropy_v1(newData,info,isNewInterval):
     '''
-    https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.entropy.html
     @param newData Object
     @return float
     '''
@@ -136,40 +126,6 @@ def calcMean(newData,info):
     total=info['total']=info.setdefault('total',0)+1
     return sumx/total
 
-def calcEntropy_slideWindow(newData,info,isNewInterval):
-    '''
-    "Statistical Approaches to DDoS Attack Detection and Response"?
-    @deprecated
-    @param newData Object
-    @return float
-    '''
-    queue=info.setdefault("queue",[])
-    queue.insert(0,newData)
-    size=100
-    if len(queue)>size:
-        queue.pop()
-    else:
-        return 0
-    ps=[queue.count(newData)/size for data in set(queue)]
-    return -sum([p*math.log(p,2) for p in ps])
-
-
-def calcEntropy_noSum(newData,info,isNewInterval):
-    '''
-    @deprecated
-    @param newData Object
-    @return float
-    '''
-    if isNewInterval:
-        #info['counter']={}
-        #info['tatalCount']=0
-        pass
-    counter=info.setdefault("counter",{})
-    counter[newData]=counter.setdefault(newData,0)+1
-    info['tatalCount']=info.setdefault('tatalCount',0)+1
-    valueTotal=info['tatalCount']
-    p=counter[newData]/valueTotal
-    return -p*math.log(p,2)
 
 def calcEntropy_ZongLunLi(newData,info):
     '''
@@ -198,4 +154,4 @@ def calcEntropy_ZongLunLi(newData,info):
         oo = (oo / totalCount) ** (1/2)
     return math.tanh(0.1 * (entropy - mean) / oo)
 
-defaultCalcEntropy=calcEntropy_section
+defaultCalcEntropy=calcEntropy_v1
