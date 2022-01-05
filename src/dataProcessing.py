@@ -8,10 +8,10 @@ import numpy as np
 def ipToNum(ip):
     '''
     @param String; ip=X0.X1.X2.X3 
-    @return int; X0*1000+X1*100+X2*10+X3
+    @return int; X0*16777216+X1*65536+X2*256+X3
     '''
     ipSplit=[int(str) for str in ip.split('.') if str != '']
-    return ipSplit[0]*1000+ipSplit[1]*100+ipSplit[2]*10+ipSplit[3]
+    return ipSplit[0]*(16777216)+ipSplit[1]*(65536)+ipSplit[2]*256+ipSplit[3]
     
 def portToNum(port):
     return int(port)

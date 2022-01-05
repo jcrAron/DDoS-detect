@@ -1,4 +1,3 @@
-import cv2
 import pickle
 import filePath
 import numpy as np
@@ -10,6 +9,7 @@ from jcraron.lib.path import createFileDir
 
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.svm import SVC
 from sklearn.metrics import precision_recall_fscore_support as score
 
 
@@ -29,7 +29,8 @@ def onlyTest():
     print("loading model...")
     knn=pickle.load(open(filePath.knnModel,'rb'))
     dtree=pickle.load(open(filePath.dtreeModel,'rb'))
-    svm=cv2.ml_SVM.load(filePath.svmModel)
+    svm=pickle.load(open(filePath.svmModel,'rb'))
+    #svm=cv2.ml_SVM.load(filePath.svmModel)
     print("Predicting...")
     knnPredict(knn,testMeasures,testLabels)
     svmPredict(svm,testMeasures,testLabels)
@@ -74,26 +75,33 @@ def svmTrain(measures,labels,saveFile):
     '''
     trainMeasureMat=np.array(measures).astype("float32")
     trainLableMat=np.array(labels).astype("int32")
+    
+    svm=SVC(kernel='linear',probability=True,max_iter=10000)
+    svm.fit(measures,labels)
+    '''
     svm = cv2.ml_SVM.create()
     svm.setType(cv2.ml.SVM_C_SVC)
     svm.setKernel(cv2.ml.SVM_LINEAR)
     svm.setTermCriteria((cv2.TermCriteria_COUNT+cv2.TermCriteria_EPS, 10000, 1e-16))
     svm.train(trainMeasureMat, cv2.ml.ROW_SAMPLE, trainLableMat)
-    createFileDir(saveFile)
     svm.save(saveFile)
+    '''
+    createFileDir(saveFile)
+    modelPickle=open(saveFile,'wb')
+    pickle.dump(svm,modelPickle)
     return svm
 
 def svmPredict(svm,measures,trueLabels):
     '''
     @return void
     '''
-    testMeasureMat = np.array(measures).astype("float32")
+    #testMeasureMat = np.array(measures).astype("float32")
     start_time=time.time()
-    retval, predictLabels = svm.predict(testMeasureMat)
+    predictLabels = svm.predict(measures)
     end_time=time.time()
     print('svm:')
     printSorce(predictLabels,trueLabels)
-    print('time:'+str((end_time - start_time)))
+    print('time:'+str((end_time - start_time)/len(trueLabels)))
     
     
 def knnPredict(knn,measures,trueLabels):
@@ -103,9 +111,10 @@ def knnPredict(knn,measures,trueLabels):
     start_time=time.time()
     predictLabels=knn.predict(measures)
     end_time=time.time()
+    
     print('knn:')
     printSorce(predictLabels,trueLabels)
-    print('time:'+str((end_time - start_time)))
+    print('time:'+str((end_time - start_time)/len(trueLabels)))
     
 
 def dtreePredict(dtree,measures,trueLabels):
@@ -117,7 +126,7 @@ def dtreePredict(dtree,measures,trueLabels):
     end_time=time.time()
     print('Decision Tree:')
     printSorce(predictLabels,trueLabels)
-    print('time:'+str((end_time - start_time)))
+    print('time:'+str((end_time - start_time)/len(trueLabels)))
     '''
     #create graph
     dot_data = export_graphviz(dtree)
